@@ -84,18 +84,23 @@ registerMicroApps(
   },
 );
 
-const { onGlobalStateChange, setGlobalState } = initGlobalState({
+const actions = initGlobalState({
   user: 'qiankun',
 });
 
-onGlobalStateChange((value, prev) => console.log('[onGlobalStateChange - master]:', value, prev));
+actions.onGlobalStateChange((value, prev) => console.log('[onGlobalStateChange - master]:', value, prev,actions));
 
-setGlobalState({
+  actions.setGlobalState({
   ignore: 'master',
   user: {
     name: 'master',
   },
+  formData:{
+
+  }
 });
+
+
 
 /**
  * Step3 设置默认进入的子应用

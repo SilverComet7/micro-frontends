@@ -1,12 +1,32 @@
 <template>
   <div id="app">
     <div id="nav">
+      <button @click="setGlobal">change</button>
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
   </div>
 </template>
+
+
+<script>
+import {vue3} from './main'
+
+export default {
+  methods: {
+    setGlobal(){
+      vue3.setGlobalState({
+        formData:{
+          test:'test form'
+        }
+      })
+    }
+  },
+}
+
+</script>
+
 
 <style lang="less">
 #app {

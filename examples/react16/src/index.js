@@ -10,13 +10,17 @@ function render(props) {
 }
 
 function storeTest(props) {
-  props.onGlobalStateChange((value, prev) => console.log(`[onGlobalStateChange - ${props.name}]:`, value, prev), true);
+
+  props.onGlobalStateChange((value, prev) => console.log(`[onGlobalStateChange - ${props.name}]: react16`, value, prev), true);
+
   props.setGlobalState({
     ignore: props.name,
     user: {
       name: props.name,
     },
   });
+
+
 }
 
 if (!window.__POWERED_BY_QIANKUN__) {

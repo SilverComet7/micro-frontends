@@ -9,7 +9,7 @@ let router = null;
 let instance = null;
 let history = null;
 
-
+export let  vue3 = null
 function render(props = {}) {
   const { container } = props;
   history = createWebHistory(window.__POWERED_BY_QIANKUN__ ? '/vue3' : '/');
@@ -38,13 +38,14 @@ function storeTest(props) {
       (value, prev) => console.log(`[onGlobalStateChange - ${props.name}]:`, value, prev),
       true,
     );
-  props.setGlobalState &&
-    props.setGlobalState({
-      ignore: props.name,
-      user: {
-        name: props.name,
-      },
-    });
+    vue3 = props
+  // props.setGlobalState &&
+  //   props.setGlobalState({
+  //     ignore: props.name,
+  //     user: {
+  //       name: props.name,
+  //     },
+  //   });
 }
 
 export async function mount(props) {
