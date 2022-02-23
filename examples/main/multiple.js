@@ -1,10 +1,10 @@
-import { loadMicroApp } from '../../es';
+import { loadMicroApp } from 'qiankun';
 
 let app;
 
 function mount() {
   app = loadMicroApp(
-    { name: 'react15', entry: '//localhost:7102', container: '#react15' },
+    { name: 'react16', entry: '//localhost:7100', container: '#react16' },
     { sandbox: { experimentalStyleIsolation: true } },
   );
 }
@@ -16,4 +16,4 @@ function unmount() {
 document.querySelector('#mount').addEventListener('click', mount);
 document.querySelector('#unmount').addEventListener('click', unmount);
 
-loadMicroApp({ name: 'vue', entry: '//localhost:7101', container: '#vue' });
+loadMicroApp({ name: 'vue3', entry: '//localhost:7106', container: '#vue3' });

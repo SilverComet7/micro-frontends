@@ -34,9 +34,7 @@ export default function App() {
     <div className="app-main">
       <LibVersion />
       <HelloModal />
-
       <Divider />
-
       <RouteExample />
     </div>
   );
