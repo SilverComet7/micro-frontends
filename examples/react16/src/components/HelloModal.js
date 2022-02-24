@@ -6,7 +6,6 @@ export default function() {
   return (
     <>
       <Button onClick={() => setVisible(true)}>CLICK ME</Button>
-      <Button onClick={() => setVisible(true)}>transMessage to parent</Button>
       <Modal visible={visible} onOk={() => setVisible(false)} onCancel={() => setVisible(false)} title="qiankun">
         Probably the most complete micro-frontends solution you ever met
       </Modal>
