@@ -17,10 +17,10 @@ export default defineConfig({
       ]
     }, {
       path: '/', component: '@/layouts', name: '指令', routes: [{
-        path: '/user-search', component: '@/pages/command/userSearch', name: '用户查询'
+        path: '/user-search', component: '@/pages/command/index', name: '用户查询/指令',
       }]
     },
-    // { path: '/login', component: '@/pages/login' }
+    { path: '/login', component: '@/pages/login' }
   ],
   fastRefresh: {},
 });

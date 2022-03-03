@@ -3,7 +3,25 @@ import { PlusOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { Button, Tag, Space, Menu, Dropdown } from 'antd';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable, { TableDropdown } from '@ant-design/pro-table';
-import request from 'umi-request';
+import { ProFormDigitRange, ProFormSelect } from '@ant-design/pro-form';
+import { request } from '@/api/base';
+
+export const RenderSeverList =  (props:any) => {
+
+return (<ProFormSelect
+  request={
+    async () => {
+     const result  =   await  request.get(`/proxy/${props.cid}/server`)
+     return result.map((item: any)=>({label:item.serverName,value:item.serverId}))
+    }
+  }
+/>)
+}
+RenderSeverList.defaultProps = {
+  cid:18
+}
+
+
 
 type GithubIssueItem = {
   url: string;
@@ -28,11 +46,12 @@ const columns: ProColumns<GithubIssueItem>[] = [
     width: 48,
   },
   {
-    title: '标题',
-    dataIndex: 'title',
-    copyable: true,
-    ellipsis: true,
-    tip: '标题过长会自动收缩',
+    title: '选择区服',
+    dataIndex: 'serverId',
+    hideInTable:true,
+    renderFormItem: (_, { type, defaultRender,   ...rest }, form) => {
+      return (<RenderSeverList   />)
+    },
     formItemProps: {
       rules: [
         {
@@ -43,66 +62,49 @@ const columns: ProColumns<GithubIssueItem>[] = [
     },
   },
   {
-    title: '状态',
-    dataIndex: 'state',
-    filters: true,
-    onFilter: true,
-    valueType: 'select',
-    valueEnum: {
-      all: { text: '全部', status: 'Default' },
-      open: {
-        text: '未解决',
-        status: 'Error',
-      },
-      closed: {
-        text: '已解决',
-        status: 'Success',
-        disabled: true,
-      },
-      processing: {
-        text: '解决中',
-        status: 'Processing',
-      },
-    },
+    title: '用户查询',
+    // dataIndex: 'title',
+    hideInTable:true,
   },
   {
-    title: '标签',
-    dataIndex: 'labels',
-    search: false,
-    renderFormItem: (_, { defaultRender }) => {
-      return defaultRender(_);
-    },
-    render: (_, record) => (
-      <Space>
-        {record.labels.map(({ name, color }) => (
-          <Tag color={color} key={name}>
-            {name}
-          </Tag>
-        ))}
-      </Space>
-    ),
+    title: '用户Id',
+    dataIndex: 'userId',
+    search:false,
+    copyable: true,
+    ellipsis: true,
+    tip: '标题过长会自动收缩',
   },
   {
-    title: '创建时间',
-    key: 'showTime',
-    dataIndex: 'created_at',
-    valueType: 'dateTime',
-    sorter: true,
-    hideInSearch: true,
-  },
-  {
-    title: '创建时间',
-    dataIndex: 'created_at',
-    valueType: 'dateRange',
-    hideInTable: true,
+    title: '用户等级',
+    dataIndex: 'level',
     search: {
       transform: (value) => {
         return {
-          startTime: value[0],
-          endTime: value[1],
+          startLevel: value[0],
+          endLevel: value[1],
         };
       },
     },
+    renderFormItem:()=><ProFormDigitRange
+    separator="-"
+    separatorWidth={60}
+    />
+  },
+  {
+    title: 'vip等级',
+    dataIndex: 'vipLevel',
+    search: {
+      transform: (value) => {
+        return {
+          startVipLevel: value[0],
+          endVipLevel: value[1],
+        };
+      },
+    },
+    renderFormItem:()=><ProFormDigitRange
+    separator="-"
+    separatorWidth={60}
+    />
   },
   {
     title: '操作',
@@ -131,13 +133,6 @@ const columns: ProColumns<GithubIssueItem>[] = [
   },
 ];
 
-const menu = (
-  <Menu>
-    <Menu.Item key="1">1st item</Menu.Item>
-    <Menu.Item key="2">2nd item</Menu.Item>
-    <Menu.Item key="3">3rd item</Menu.Item>
-  </Menu>
-);
 
 export default () => {
   const actionRef = useRef<ActionType>();
@@ -145,12 +140,15 @@ export default () => {
     <ProTable<GithubIssueItem>
       columns={columns}
       actionRef={actionRef}
+
       request={async (params = {}, sort, filter) => {
-        console.log(sort, filter);
         return request<{
           data: GithubIssueItem[];
-        }>('https://proapi.azurewebsites.net/github/issues', {
+        }>('/gm/command/common/18', {
           params,
+          action: "queryMany",
+          model: "accountManager",
+          serverIds:[1],
         });
       }}
       editable={{
@@ -163,6 +161,7 @@ export default () => {
       rowKey="id"
       search={{
         labelWidth: 'auto',
+        defaultCollapsed:false
       }}
       form={{
         // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
@@ -170,7 +169,7 @@ export default () => {
           if (type === 'get') {
             return {
               ...values,
-              created_at: [values.startTime, values.endTime],
+              levelRange: [values.startLevel, values.endLevel],
             };
           }
           return values;
@@ -186,11 +185,7 @@ export default () => {
         <Button key="button" icon={<PlusOutlined />} type="primary">
           新建
         </Button>,
-        // <Dropdown key="menu" overlay={menu}>
-        //   {/* <Button> */}
-        //     <EllipsisOutlined />
-        //   </Button>
-        // </Dropdown>
+
       ]}
     />
   );
