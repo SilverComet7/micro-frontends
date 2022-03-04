@@ -9,9 +9,11 @@ import { request } from '@/api/base';
 export const RenderSeverList =  (props:any) => {
 
 return (<ProFormSelect
+  label='选择区服'
+  width='sm'
   request={
     async () => {
-     const result  =   await  request.get(`/proxy/${props.cid}/server`)
+     const result  =  await  request.get(`/proxy/${props.cid}/server`)
      return result.map((item: any)=>({label:item.serverName,value:item.serverId}))
     }
   }
@@ -46,11 +48,11 @@ const columns: ProColumns<GithubIssueItem>[] = [
     width: 48,
   },
   {
-    title: '选择区服',
+    // title: '',
     dataIndex: 'serverId',
     hideInTable:true,
     renderFormItem: (_, { type, defaultRender,   ...rest }, form) => {
-      return (<RenderSeverList   />)
+      return ( <RenderSeverList   />)
     },
     formItemProps: {
       rules: [
@@ -140,7 +142,6 @@ export default () => {
     <ProTable<GithubIssueItem>
       columns={columns}
       actionRef={actionRef}
-
       request={async (params = {}, sort, filter) => {
         return request<{
           data: GithubIssueItem[];

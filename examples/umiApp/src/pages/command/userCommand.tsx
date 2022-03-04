@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef,useState } from 'react';
 import { message, TreeSelect } from 'antd';
 import type { ProFormInstance } from '@ant-design/pro-form';
 import { ProFormCascader } from '@ant-design/pro-form';
@@ -7,7 +7,7 @@ import ProForm, {
   ProFormSelect,
 } from '@ant-design/pro-form';
 
-import RenderSeverList from './userSearch'
+import {RenderSeverList} from './userSearch'
 
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -22,7 +22,14 @@ export const gmCmdSelection: any[] = [
     value: 'Set',
     label: '设置指令',
     children: [
-      { value: 'SetRelicTreasure', label: '设置遗迹寻宝次数', model: 'shenji', action: 'setDurability' },
+      { value: 'SetRelicTreasure', label: '设置遗迹寻宝次数', model: 'shenji', action: 'setDurability',sendData:{
+        name:''
+      },  render(){
+        const that = this
+        function setThisData(e:any){
+          that.sendData.name  =   e.target.value
+        }
+        return <ProFormText width="sm"  fieldProps={{onChange:setThisData}}  label="次数设置" />} },
       { value: 'SetEquipTreasure', label: '设置装备宝库已挑战次数', model: 'equipTH', action: 'setChallengeCount' },
       {
         value: 'SetGuildTechnology',
@@ -106,11 +113,22 @@ export default () => {
       useMode?: string;
     }>
   >();
+
+  const [cmpName, setCmpName] = useState<JSX.Element>();
+  const getCmp = (e,se:any) =>{
+   setCmpName(se[se.length-1].render())
+  }
+  const GenCmp = () => {
+    if(!cmpName) return <></>
+    return  cmpName
+  }
+
   return (
     <ProForm<{
       name: string;
       company?: string;
       useMode?: string;
+
     }>
       onFinish={async (values) => {
         await waitTime(2000);
@@ -133,13 +151,14 @@ export default () => {
     >
       <ProFormText width="sm" name="userName" label="用户名称" />
       <ProFormText width="sm" name="userId" label="用户Id" />
-      {/* <RenderSeverList/> */}
+      <RenderSeverList/>
       <ProFormCascader
-        width="md"
-        request={async () => gmCmdSelection}
+        width="sm"
+        fieldProps={{options:gmCmdSelection,onChange:getCmp}}
         name="area"
         label="操作"
       />
+      <GenCmp></GenCmp>
     </ProForm>
   );
 };
