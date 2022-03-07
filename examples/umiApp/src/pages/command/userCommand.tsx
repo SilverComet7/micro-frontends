@@ -116,7 +116,7 @@ export default () => {
 
   const [cmpName, setCmpName] = useState<JSX.Element>();
   const getCmp = (e,se:any) =>{
-   setCmpName(se[se.length-1].render())
+   setCmpName(se[se.length-1]?.render?.())
   }
   const GenCmp = () => {
     if(!cmpName) return <></>

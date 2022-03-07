@@ -90,7 +90,7 @@ export default {
   // },
 
 
-  '/v1/gm/command/common/18':[
+  '/v1/gm/command/common/18':{data:[
     {
         "_id": "61ee8887a45176f9b521e69e",
         "serverId": 1,
@@ -327,5 +327,5 @@ export default {
         "__v": 0,
         "guildId": null
     }
-]
+],success:true,total:99}
 }

@@ -48,25 +48,35 @@ const columns: ProColumns<GithubIssueItem>[] = [
     width: 48,
   },
   {
-    // title: '',
     dataIndex: 'serverId',
     hideInTable:true,
+    initialValue: 1,
     renderFormItem: (_, { type, defaultRender,   ...rest }, form) => {
-      return ( <RenderSeverList   />)
+      return  <RenderSeverList   />
     },
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
+    // search: {
+    //   transform: (value) => {
+    //     return value
+    //   },
+    // },
+    // formItemProps: {
+    //   rules: [
+    //     {
+    //       required: true,
+    //       message: '此项为必填项',
+    //     },
+    //   ],
+    // },
   },
   {
     title: '用户查询',
-    // dataIndex: 'title',
+    dataIndex:'account',
     hideInTable:true,
+  },
+  {
+    title: '账户名称',
+    dataIndex:'account',
+    hideInSearch:true,
   },
   {
     title: '用户Id',
@@ -143,14 +153,8 @@ export default () => {
       columns={columns}
       actionRef={actionRef}
       request={async (params = {}, sort, filter) => {
-        return request<{
-          data: GithubIssueItem[];
-        }>('/gm/command/common/18', {
-          params,
-          action: "queryMany",
-          model: "accountManager",
-          serverIds:[1],
-        });
+        console.log(params,sort, filter);
+        return request('/gm/command/common/18',{params});
       }}
       editable={{
         type: 'multiple',
@@ -170,7 +174,8 @@ export default () => {
           if (type === 'get') {
             return {
               ...values,
-              levelRange: [values.startLevel, values.endLevel],
+              // levelRange: [values.startLevel, values.endLevel],
+              // vipLevelRange: [values.startVipLevel, values.endVipLevel],
             };
           }
           return values;
@@ -186,7 +191,6 @@ export default () => {
         <Button key="button" icon={<PlusOutlined />} type="primary">
           新建
         </Button>,
-
       ]}
     />
   );
