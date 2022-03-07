@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import { PlusOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { PlusOutlined,  } from '@ant-design/icons';
 import { Button, Tag, Space, Menu, Dropdown } from 'antd';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable, { TableDropdown } from '@ant-design/pro-table';
 import { ProFormDigitRange, ProFormSelect } from '@ant-design/pro-form';
-import { request } from '@/api/base';
+import { commandRequest, request } from '@/api/base';
 
 export const RenderSeverList =  (props:any) => {
 
@@ -13,8 +13,8 @@ return (<ProFormSelect
   width='sm'
   request={
     async () => {
-     const result  =  await  request.get(`/proxy/${props.cid}/server`)
-     return result.map((item: any)=>({label:item.serverName,value:item.serverId}))
+     const  result  =  await  request.get(`/proxy/${props.cid}/server`)
+     return result.data.map((item: any)=>({label:item.serverName,value:item.serverId}))
     }
   }
 />)
@@ -22,140 +22,172 @@ return (<ProFormSelect
 RenderSeverList.defaultProps = {
   cid:18
 }
+export interface UserInfo {
+  /** 服务器id */
+
+  serverId: number ;
+  /** 昵称 */
+
+  nickName?: string;
+
+  guildId?: string;
+  /** 头像 */
+
+  avatar?: string;
+
+  avatarFrame?: string;
+  /** sdk账号 */
+
+  account?: string;
+  /** 渠道号 */
+
+  channelId: string
+  /** 渠道自定义参数  或者sdk需要的参数 */
+  channelParam: { [key: string]: string | number }
+
+  createTime: number ;
+  /** 上次登录时间 */
+
+  lastLoginTime: number ;
+  /** 离线时间 */
+
+  offlineTime: number ;
+
+  nickChangeTimes: number ;
+  /** 等级变更时间点，排行榜需要 */
+
+  levelChangeTme: number ;
+  /** vip等级版本号，如果版本号不相同，根据VIP总经验，校准当前等级和经验 */
+
+  vipLevelVersion?: string;
+  /** [公告编号]  */
+  bulletinVersions: { [id: string]: string }
+  // 账号信息， 包括系统、IP、包名等，可扩展
+  extInfo: Map<string, string>;
+  /** 上次离开公会时间 */
+
+  lastLeaveGuildTime: number ;
+  /** 离开公会次数 */
+
+  leaveGuildCount: number ;
+  /** 转会次数 */
+
+  transferCount: number ;
+  // 被封禁到什么时候
+
+  forbiddenUntil: number ;
+
+  _id: string;
+}
 
 
 
-type GithubIssueItem = {
-  url: string;
-  id: number;
-  number: number;
-  title: string;
-  labels: {
-    name: string;
-    color: string;
-  }[];
-  state: string;
-  comments: number;
-  created_at: string;
-  updated_at: string;
-  closed_at?: string;
-};
 
-const columns: ProColumns<GithubIssueItem>[] = [
-  {
-    dataIndex: 'index',
-    valueType: 'indexBorder',
-    width: 48,
-  },
-  {
-    dataIndex: 'serverId',
-    hideInTable:true,
-    initialValue: 1,
-    renderFormItem: (_, { type, defaultRender,   ...rest }, form) => {
-      return  <RenderSeverList   />
+
+const getColumns = (props:any)=>{
+  const columns: ProColumns<UserInfo>[] = [
+    {
+      dataIndex: 'index',
+      valueType: 'indexBorder',
+      width: 48,
     },
-    // search: {
-    //   transform: (value) => {
-    //     return value
-    //   },
-    // },
-    // formItemProps: {
-    //   rules: [
-    //     {
-    //       required: true,
-    //       message: '此项为必填项',
-    //     },
-    //   ],
-    // },
-  },
-  {
-    title: '用户查询',
-    dataIndex:'account',
-    hideInTable:true,
-  },
-  {
-    title: '账户名称',
-    dataIndex:'account',
-    hideInSearch:true,
-  },
-  {
-    title: '用户Id',
-    dataIndex: 'userId',
-    search:false,
-    copyable: true,
-    ellipsis: true,
-    tip: '标题过长会自动收缩',
-  },
-  {
-    title: '用户等级',
-    dataIndex: 'level',
-    search: {
-      transform: (value) => {
-        return {
-          startLevel: value[0],
-          endLevel: value[1],
-        };
+    {
+      dataIndex: 'serverId',
+      hideInTable:true,
+      initialValue: 1,
+      renderFormItem: (_, { type, defaultRender,   ...rest }, form) => {
+        return  <RenderSeverList   />
       },
     },
-    renderFormItem:()=><ProFormDigitRange
-    separator="-"
-    separatorWidth={60}
-    />
-  },
-  {
-    title: 'vip等级',
-    dataIndex: 'vipLevel',
-    search: {
-      transform: (value) => {
-        return {
-          startVipLevel: value[0],
-          endVipLevel: value[1],
-        };
-      },
+    {
+      title: '用户查询',
+      dataIndex:'account',
+      hideInTable:true,
     },
-    renderFormItem:()=><ProFormDigitRange
-    separator="-"
-    separatorWidth={60}
-    />
-  },
-  {
-    title: '操作',
-    valueType: 'option',
-    render: (text, record, _, action) => [
-      <a
-        key="editable"
-        onClick={() => {
-          action?.startEditable?.(record.id);
-        }}
-      >
-        编辑
-      </a>,
-      <a href={record.url} target="_blank" rel="noopener noreferrer" key="view">
-        查看
-      </a>,
-      <TableDropdown
-        key="actionGroup"
-        onSelect={() => action?.reload()}
-        menus={[
-          { key: 'copy', name: '复制' },
-          { key: 'delete', name: '删除' },
-        ]}
-      />,
-    ],
-  },
-];
+    {
+      title: '账户名称',
+      dataIndex:'account',
+      hideInSearch:true,
+    },
+    {
+      title: '用户Id',
+      dataIndex: 'userId',
+      search:false,
+      copyable: true,
+      ellipsis: true,
+      tip: '标题过长会自动收缩',
+    },
+    {
+      title: '用户等级',
+      dataIndex: 'level',
+      search: {
+        transform: (value) => {
+          return {
+            startLevel: value[0],
+            endLevel: value[1],
+          };
+        },
+      },
+      renderFormItem:()=><ProFormDigitRange
+      separator="-"
+      separatorWidth={60}
+      />
+    },
+    {
+      title: 'vip等级',
+      dataIndex: 'vipLevel',
+      search: {
+        transform: (value) => {
+          return {
+            startVipLevel: value[0],
+            endVipLevel: value[1],
+          };
+        },
+      },
+      renderFormItem:()=><ProFormDigitRange
+      separator="-"
+      separatorWidth={60}
+      />
+    },
+    {
+      title: '操作',
+      valueType: 'option',
+      render: (text, record, _, action) => [
+        <a
+          key="editable"
+        >
+          编辑
+        </a>,
+        <a onClick={()=> props.myEvent({account:record.account, keyName:'Command'})} >
+          查看
+        </a>,
+        <TableDropdown
+          key="actionGroup"
+          onSelect={() => action?.reload()}
+          menus={[
+            { key: 'copy', name: '复制' },
+            { key: 'delete', name: '删除' },
+          ]}
+        />,
+      ],
+    },
+  ];
+  return columns
+}
 
 
-export default () => {
+export default (props: any) => {
   const actionRef = useRef<ActionType>();
   return (
-    <ProTable<GithubIssueItem>
-      columns={columns}
+    <ProTable<UserInfo>
+      columns={getColumns(props)}
       actionRef={actionRef}
       request={async (params = {}, sort, filter) => {
         console.log(params,sort, filter);
-        return request('/gm/command/common/18',{params});
+        return commandRequest('/gm/command/common/18',{  model: 'accountManager',
+        action: 'queryMany',serverIds:[params.serverId], searchNickname:true, ...params});
       }}
+      // postData={(data)=>{}}
       editable={{
         type: 'multiple',
       }}
@@ -174,8 +206,7 @@ export default () => {
           if (type === 'get') {
             return {
               ...values,
-              // levelRange: [values.startLevel, values.endLevel],
-              // vipLevelRange: [values.startVipLevel, values.endVipLevel],
+
             };
           }
           return values;
