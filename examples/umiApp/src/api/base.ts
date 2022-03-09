@@ -3,13 +3,15 @@ export const request = extend({
   prefix: 'http://localhost:3000/v1',
   timeout: 1000,
   headers: {
-      'Content-Type': 'application/json',
+    'Content-Type': 'application/json',
   },
 });
 
 
 
-export const commandRequest = (url, postData) => {
-  const { action, model, serverIds, current: page, serverId, ...rest } = postData
-  return request.post(url, { data: { action, model, serverIds, data: {...rest,page} } })
+export const commandRequest = async (url = '/gm/command/common/18', postData) => {
+  const result = await request.post(url, { data: postData })
+  console.log(result);
+  return result.data[postData.serverIds[0]]
+
 }

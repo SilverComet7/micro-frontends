@@ -1,13 +1,11 @@
-import React, { useRef,useState } from 'react';
-import { message, TreeSelect } from 'antd';
-import type { ProFormInstance } from '@ant-design/pro-form';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ProFormDigit, ProFormInstance } from '@ant-design/pro-form';
 import { ProFormCascader } from '@ant-design/pro-form';
 import ProForm, {
   ProFormText,
-  ProFormSelect,
 } from '@ant-design/pro-form';
-
-import {RenderSeverList} from './userSearch'
+import { RenderSeverList } from './userSearch'
+import { commandRequest } from '@/api/base';
 
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -22,14 +20,13 @@ export const gmCmdSelection: any[] = [
     value: 'Set',
     label: '设置指令',
     children: [
-      { value: 'SetRelicTreasure', label: '设置遗迹寻宝次数', model: 'shenji', action: 'setDurability',sendData:{
-        name:''
-      },  render(){
-        const that = this
-        function setThisData(e:any){
-          that.sendData.name  =   e.target.value
+      {
+        value: 'SetRelicTreasure', label: '设置遗迹寻宝次数', model: 'shenji', action: 'setDurability', sendData: {
+          durability: undefined as unknown
+        }, render() {
+          return <ProFormDigit width="sm" fieldProps={{ onChange: (e) => { this.sendData.durability = e } }} label="次数设置" />
         }
-        return <ProFormText width="sm"  fieldProps={{onChange:setThisData}}  label="次数设置" />} },
+      },
       { value: 'SetEquipTreasure', label: '设置装备宝库已挑战次数', model: 'equipTH', action: 'setChallengeCount' },
       {
         value: 'SetGuildTechnology',
@@ -105,60 +102,78 @@ export const gmCmdSelection: any[] = [
   },
 ];
 
-export default () => {
-  const formRef = useRef<
-    ProFormInstance<{
-      name: string;
-      company?: string;
-      useMode?: string;
-    }>
-  >();
+export default (props) => {
 
-  const [cmpName, setCmpName] = useState<JSX.Element>();
-  const getCmp = (e,se:any) =>{
-   setCmpName(se[se.length-1]?.render?.())
+  const formRef = useRef<
+    ProFormInstance
+  >();
+  function setInitProp(props: any) {
+    if (props?.user) {
+      formRef.current?.setFieldsValue({
+        userName: props.user.nickName,
+        uid: props.user._id,
+        serverId: props.user.serverId
+      })
+    }
   }
-  const GenCmp = () => {
-    if(!cmpName) return <></>
-    return  cmpName
+
+
+  const [cmpName, setCmpName] = useState();
+
+  let initPropValue = {}
+  const changeCmpValue = (e, se: any) => {
+    //  setCmpName(se[se.length-1]?.render?.())
+    setCmpName(e[e.length - 1])
   }
+  const getCmp = useMemo(() => {
+    return gmCmdSelection.map(e => e.children).flat().find(item => item.value === cmpName)
+  }, cmpName)
+
+  useEffect(() => {
+    setInitProp(props)
+    return () => {
+      formRef.current?.setFieldsValue({})
+    }
+  }, [props])
 
   return (
     <ProForm<{
-      name: string;
-      company?: string;
-      useMode?: string;
-
+      userName?: string;
+      uid?: string;
+      serverId?: number;
     }>
       onFinish={async (values) => {
         await waitTime(2000);
-        console.log(values);
-        const val1 = await formRef.current?.validateFields();
-        console.log('validateFields:', val1);
-        const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
-        console.log('validateFieldsReturnFormatValue:', val2);
-        message.success('提交成功');
+        const { action, model, sendData } = getCmp
+        const { uid, serverId } = values;
+        // console.log(values, getCmp);
+        const result = await commandRequest(undefined, {
+          model,
+          action,
+          serverIds: [serverId],
+          data: {
+            uid,
+            ...sendData
+          }
+        })
       }}
+      initialValues={initPropValue}
       layout='horizontal'
       formRef={formRef}
-      params={{ id: '100' }}
+      onValuesChange={(changeValues) => console.log(changeValues)}
       formKey="base-form-use-demo"
-      dateFormatter={(value, valueType) => {
-        console.log('---->', value, valueType);
-        return value.format('YYYY/MM/DD HH:mm:ss');
-      }}
       autoFocusFirstInput
     >
       <ProFormText width="sm" name="userName" label="用户名称" />
-      <ProFormText width="sm" name="userId" label="用户Id" />
-      <RenderSeverList/>
+      <ProFormText width="sm" name="uid" label="用户Id" />
+      <RenderSeverList name='serverId'></RenderSeverList>
       <ProFormCascader
         width="sm"
-        fieldProps={{options:gmCmdSelection,onChange:getCmp}}
-        name="area"
+        fieldProps={{ options: gmCmdSelection, onChange: changeCmpValue }}
         label="操作"
       />
-      <GenCmp></GenCmp>
+      {getCmp?.render ? getCmp?.render() : <></>}
     </ProForm>
   );
 };
+

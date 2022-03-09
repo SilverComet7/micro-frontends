@@ -11,6 +11,8 @@ export const RenderSeverList =  (props:any) => {
 return (<ProFormSelect
   label='选择区服'
   width='sm'
+  name='serverId'
+  fieldProps={{value:props.sid}}
   request={
     async () => {
      const  result  =  await  request.get(`/proxy/${props.cid}/server`)
@@ -96,7 +98,7 @@ const getColumns = (props:any)=>{
       hideInTable:true,
       initialValue: 1,
       renderFormItem: (_, { type, defaultRender,   ...rest }, form) => {
-        return  <RenderSeverList   />
+        return  <RenderSeverList    />
       },
     },
     {
@@ -158,7 +160,7 @@ const getColumns = (props:any)=>{
         >
           编辑
         </a>,
-        <a onClick={()=> props.myEvent({account:record.account, keyName:'Command'})} >
+        <a onClick={()=> props.myEvent({user:record, keyName:'Command'})} >
           查看
         </a>,
         <TableDropdown
@@ -183,11 +185,22 @@ export default (props: any) => {
       columns={getColumns(props)}
       actionRef={actionRef}
       request={async (params = {}, sort, filter) => {
-        console.log(params,sort, filter);
-        return commandRequest('/gm/command/common/18',{  model: 'accountManager',
-        action: 'queryMany',serverIds:[params.serverId], searchNickname:true, ...params});
+        // console.log(params,sort, filter);
+        const {  current: page, serverId, ...rest } = params
+        const result = await commandRequest('/gm/command/common/18',{  model: 'accountManager',
+        action: 'queryMany',
+        serverIds:[serverId],
+        data:{
+          searchNickname:true,
+          page,
+          ...rest
+        }
+        });
+        return {
+          data:result.data.items,
+          total:result.data.count,
+        }
       }}
-      // postData={(data)=>{}}
       editable={{
         type: 'multiple',
       }}
@@ -206,7 +219,6 @@ export default (props: any) => {
           if (type === 'get') {
             return {
               ...values,
-
             };
           }
           return values;
