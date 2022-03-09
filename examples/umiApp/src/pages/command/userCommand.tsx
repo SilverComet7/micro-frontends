@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import  { useEffect, useMemo, useRef, useState } from 'react';
 import { ProFormDigit, ProFormInstance } from '@ant-design/pro-form';
 import { ProFormCascader } from '@ant-design/pro-form';
 import ProForm, {
@@ -38,6 +38,9 @@ export const gmCmdSelection: any[] = [
         value: 'SetCustomLevel',
         label: '设置关卡',
         action: 'setCheckpoint',
+        render() {
+          return <ProFormDigit width="sm" fieldProps={{ onChange: (e) => { this.sendData.durability = e } }} label="次数设置" />
+        }
       },
     ],
   },
@@ -103,7 +106,6 @@ export const gmCmdSelection: any[] = [
 ];
 
 export default (props) => {
-
   const formRef = useRef<
     ProFormInstance
   >();
@@ -116,7 +118,6 @@ export default (props) => {
       })
     }
   }
-
 
   const [cmpName, setCmpName] = useState();
 
@@ -142,6 +143,7 @@ export default (props) => {
       uid?: string;
       serverId?: number;
     }>
+
       onFinish={async (values) => {
         await waitTime(2000);
         const { action, model, sendData } = getCmp
